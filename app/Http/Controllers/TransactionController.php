@@ -65,6 +65,9 @@ class TransactionController extends Controller
             $account->addExpense($request->amount);
         }
 
+        // Sync Main account balance
+        Account::syncMainAccountBalance();
+
         return redirect()->route('dashboard')->with('success', 'Transaction recorded successfully!');
     }
 
@@ -86,6 +89,9 @@ class TransactionController extends Controller
 
         // Delete the transaction
         $transaction->delete();
+
+        // Sync Main account balance
+        Account::syncMainAccountBalance();
 
         return back()->with('success', 'Transaction deleted and balance restored successfully!');
     }

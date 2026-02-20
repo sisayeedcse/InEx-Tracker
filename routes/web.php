@@ -30,3 +30,10 @@ Route::get('/transactions', [TransactionController::class, 'index'])->name('tran
 Route::get('/cost-estimations', [CostEstimationController::class, 'index'])->name('cost-estimations.index');
 Route::post('/cost-estimations/parse', [CostEstimationController::class, 'parse'])->name('cost-estimations.parse');
 Route::delete('/cost-estimations/{costEstimation}', [CostEstimationController::class, 'destroy'])->name('cost-estimations.destroy');
+
+// Temporary route to sync Main account (can be removed later)
+Route::get('/sync-main-account', function() {
+    \App\Models\Account::syncMainAccountBalance();
+    $mainAccount = \App\Models\Account::where('name', 'Main')->first();
+    return redirect()->route('dashboard')->with('success', 'Main account synced! New balance: ৳' . number_format($mainAccount->balance, 2));
+});

@@ -39,4 +39,20 @@ class Account extends Model
     {
         $this->decrement('balance', $amount);
     }
+
+    /**
+     * Sync Main account balance with sum of all other accounts.
+     */
+    public static function syncMainAccountBalance(): void
+    {
+        $mainAccount = self::where('name', 'Main')->first();
+        
+        if ($mainAccount) {
+            // Calculate sum of all accounts except Main
+            $totalBalance = self::where('name', '!=', 'Main')->sum('balance');
+            
+            // Update Main account balance without triggering events
+            $mainAccount->update(['balance' => $totalBalance]);
+        }
+    }
 }

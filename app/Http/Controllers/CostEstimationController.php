@@ -27,8 +27,8 @@ class CostEstimationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Calculate total current balance across all accounts
-        $totalCurrentBalance = $accounts->sum('balance');
+        // Calculate total current balance across all accounts (exclude Main to avoid duplication)
+        $totalCurrentBalance = Account::where('name', '!=', 'Main')->sum('balance');
 
         // Calculate total estimated costs
         $totalEstimatedCosts = $costEstimations->sum('amount');

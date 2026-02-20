@@ -32,11 +32,25 @@ class AccountController extends Controller
             'accounts.*.balance' => 'required|numeric|min:0',
         ]);
 
+        $totalBalance = 0;
+        
         foreach ($request->accounts as $accountData) {
             Account::create([
                 'name' => $accountData['name'],
                 'balance' => $accountData['balance'],
             ]);
+            $totalBalance += $accountData['balance'];
+        }
+
+        // Create Main account with sum of all accounts if it doesn't exist
+        if (!Account::where('name', 'Main')->exists()) {
+            Account::create([
+                'name' => 'Main',
+                'balance' => $totalBalance,
+            ]);
+        } else {
+            // Sync Main account if it already exists
+            Account::syncMainAccountBalance();
         }
 
         return redirect()->route('dashboard')->with('success', 'Accounts created successfully!');
@@ -85,6 +99,9 @@ class AccountController extends Controller
             'balance' => $balance,
         ]);
 
+        // Sync Main account balance
+        Account::syncMainAccountBalance();
+
         return redirect()->route('accounts.index')->with('success', 'Account created successfully!');
     }
 
@@ -131,6 +148,9 @@ class AccountController extends Controller
             'balance' => $balance,
         ]);
 
+        // Sync Main account balance
+        Account::syncMainAccountBalance();
+
         return redirect()->route('accounts.index')->with('success', 'Account updated successfully!');
     }
 
@@ -140,6 +160,10 @@ class AccountController extends Controller
     public function destroy(Account $account)
     {
         $account->delete();
+        
+        // Sync Main account balance
+        Account::syncMainAccountBalance();
+        
         return redirect()->route('accounts.index')->with('success', 'Account deleted successfully!');
     }
 

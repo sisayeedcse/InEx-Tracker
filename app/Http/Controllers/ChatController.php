@@ -89,6 +89,9 @@ class ChatController extends Controller
 
             DB::commit();
 
+            // Sync Main account balance
+            Account::syncMainAccountBalance();
+
             return redirect()->route('dashboard')->with('success', 'Transfer completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();

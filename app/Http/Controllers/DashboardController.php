@@ -16,7 +16,8 @@ class DashboardController extends Controller
         }
 
         $accounts = Account::all();
-        $totalBalance = $accounts->sum('balance');
+        // Exclude Main account from total to avoid duplication
+        $totalBalance = Account::where('name', '!=', 'Main')->sum('balance');
         $recentTransactions = Transaction::with('account')
             ->latest()
             ->take(10)
