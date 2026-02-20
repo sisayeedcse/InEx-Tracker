@@ -57,7 +57,8 @@ class AccountController extends Controller
      */
     public function create()
     {
-        return view('accounts.create');
+        $usdToBdtRate = Setting::getUsdToBdtRate();
+        return view('accounts.create', compact('usdToBdtRate'));
     }
 
     /**
@@ -68,9 +69,21 @@ class AccountController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:accounts',
             'balance' => 'required|numeric|min:0',
+            'currency' => 'nullable|in:usd,bdt',
         ]);
 
-        Account::create($request->only(['name', 'balance']));
+        $balance = $request->balance;
+        
+        // If Payoneer and currency is USD, convert to BDT
+        if (strtolower($request->name) === 'payoneer' && $request->currency === 'usd') {
+            $exchangeRate = Setting::getUsdToBdtRate();
+            $balance = $request->balance * $exchangeRate;
+        }
+
+        Account::create([
+            'name' => $request->name,
+            'balance' => $balance,
+        ]);
 
         return redirect()->route('accounts.index')->with('success', 'Account created successfully!');
     }
@@ -90,7 +103,8 @@ class AccountController extends Controller
      */
     public function edit(Account $account)
     {
-        return view('accounts.edit', compact('account'));
+        $usdToBdtRate = Setting::getUsdToBdtRate();
+        return view('accounts.edit', compact('account', 'usdToBdtRate'));
     }
 
     /**
@@ -101,9 +115,21 @@ class AccountController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:accounts,name,' . $account->id,
             'balance' => 'required|numeric|min:0',
+            'currency' => 'nullable|in:usd,bdt',
         ]);
 
-        $account->update($request->only(['name', 'balance']));
+        $balance = $request->balance;
+        
+        // If Payoneer and currency is USD, convert to BDT
+        if (strtolower($account->name) === 'payoneer' && $request->currency === 'usd') {
+            $exchangeRate = Setting::getUsdToBdtRate();
+            $balance = $request->balance * $exchangeRate;
+        }
+
+        $account->update([
+            'name' => $request->name,
+            'balance' => $balance,
+        ]);
 
         return redirect()->route('accounts.index')->with('success', 'Account updated successfully!');
     }
