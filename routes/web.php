@@ -20,6 +20,7 @@ Route::post('/settings/exchange-rate', [AccountController::class, 'updateExchang
 Route::post('/chat/parse', [ChatController::class, 'parse'])->name('chat.parse');
 Route::post('/chat/transfer', [ChatController::class, 'transfer'])->name('chat.transfer');
 Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
 // Transaction history
 Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');

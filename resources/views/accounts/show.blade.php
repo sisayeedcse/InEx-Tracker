@@ -46,6 +46,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Note</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -67,10 +68,23 @@
                                     {{ $transaction->type === 'income' ? '+' : '-' }}৳{{ number_format($transaction->amount, 2) }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600">{{ $transaction->note }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <form method="POST" action="{{ route('transactions.destroy', $transaction) }}"
+                                        onsubmit="return confirm('Are you sure you want to delete this transaction? The account balance will be restored.');"
+                                        class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200"
+                                            title="Delete Transaction">
+                                            🗑️ Delete
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                                     No transactions yet
                                 </td>
                             </tr>

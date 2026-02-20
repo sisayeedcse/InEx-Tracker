@@ -67,4 +67,26 @@ class TransactionController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Transaction recorded successfully!');
     }
+
+    /**
+     * Remove the specified transaction and reverse balance changes.
+     */
+    public function destroy(Transaction $transaction)
+    {
+        $account = $transaction->account;
+
+        // Reverse the balance change
+        if ($transaction->type === 'income') {
+            // If it was income, subtract it back
+            $account->addExpense($transaction->amount);
+        } else {
+            // If it was expense, add it back
+            $account->addIncome($transaction->amount);
+        }
+
+        // Delete the transaction
+        $transaction->delete();
+
+        return back()->with('success', 'Transaction deleted and balance restored successfully!');
+    }
 }

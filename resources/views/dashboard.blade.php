@@ -206,6 +206,7 @@
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Account</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Amount</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Note</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -230,10 +231,23 @@
                                     {{ $transaction->type === 'income' ? '+' : '-' }}৳{{ number_format($transaction->amount, 2) }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600">{{ $transaction->note }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <form method="POST" action="{{ route('transactions.destroy', $transaction) }}" 
+                                        onsubmit="return confirm('Are you sure you want to delete this transaction? The account balance will be restored.');"
+                                        class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                            class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md"
+                                            title="Delete Transaction">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-12 text-center">
+                                <td colspan="6" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center">
                                         <span class="text-6xl mb-4 opacity-20">📝</span>
                                         <p class="text-gray-500 font-medium">No transactions yet. Start adding some!</p>

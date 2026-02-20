@@ -54,6 +54,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Note</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -77,10 +78,23 @@
                                 {{ $transaction->type === 'income' ? '+' : '-' }}৳{{ number_format($transaction->amount, 2) }}
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $transaction->note ?: 'N/A' }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <form method="POST" action="{{ route('transactions.destroy', $transaction) }}"
+                                    onsubmit="return confirm('Are you sure you want to delete this transaction? The account balance will be restored.');"
+                                    class="inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200"
+                                        title="Delete Transaction">
+                                        🗑️ Delete
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                                 <div class="text-4xl mb-2">📊</div>
                                 No transactions found
                             </td>
