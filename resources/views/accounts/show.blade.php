@@ -16,11 +16,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Current Balance</p>
-                    <p class="text-4xl font-bold text-gray-900">৳{{ number_format($account->balance, 2) }}</p>
                     @if(strtolower($account->name) === 'payoneer')
+                        <p class="text-4xl font-bold text-gray-900">💵
+                            ${{ number_format($account->balance / $usdToBdtRate, 2) }}</p>
                         <p class="text-sm text-gray-500 mt-2 font-medium">
-                            💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }} USD
+                            ≈ ৳{{ number_format($account->balance, 2) }} BDT
                         </p>
+                    @else
+                        <p class="text-4xl font-bold text-gray-900">৳{{ number_format($account->balance, 2) }}</p>
                     @endif
                 </div>
                 <div>

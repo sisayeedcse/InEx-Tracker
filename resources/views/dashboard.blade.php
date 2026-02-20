@@ -55,12 +55,16 @@
                                 <h4 class="font-bold text-gray-800 text-lg">{{ $account->name }}</h4>
                                 <span class="text-2xl group-hover:scale-110 transition-transform duration-300">💰</span>
                             </div>
-                            <p class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                ৳{{ number_format($account->balance, 2) }}
-                            </p>
                             @if(strtolower($account->name) === 'payoneer')
+                                <p class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                    💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }}
+                                </p>
                                 <p class="text-sm text-gray-500 mt-2 font-medium">
-                                    💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }} USD
+                                    ≈ ৳{{ number_format($account->balance, 2) }} BDT
+                                </p>
+                            @else
+                                <p class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                    ৳{{ number_format($account->balance, 2) }}
                                 </p>
                             @endif
                             <div class="mt-4 pt-4 border-t border-gray-200">

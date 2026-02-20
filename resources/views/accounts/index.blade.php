@@ -74,13 +74,15 @@
 
                         <div class="mb-6">
                             <p class="text-sm text-gray-600 mb-2 font-medium uppercase tracking-wide">Current Balance</p>
-                            <p
-                                class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                ৳{{ number_format($account->balance, 2) }}</p>
                             @if(strtolower($account->name) === 'payoneer')
+                                <p class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                    💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }}</p>
                                 <p class="text-sm text-gray-500 mt-2 font-medium">
-                                    💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }} USD
+                                    ≈ ৳{{ number_format($account->balance, 2) }} BDT
                                 </p>
+                            @else
+                                <p class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                    ৳{{ number_format($account->balance, 2) }}</p>
                             @endif
                         </div>
 
