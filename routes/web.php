@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\CostEstimationController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,3 +25,8 @@ Route::delete('/transactions/{transaction}', [TransactionController::class, 'des
 
 // Transaction history
 Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+
+// Cost estimation routes
+Route::get('/cost-estimations', [CostEstimationController::class, 'index'])->name('cost-estimations.index');
+Route::post('/cost-estimations/parse', [CostEstimationController::class, 'parse'])->name('cost-estimations.parse');
+Route::delete('/cost-estimations/{costEstimation}', [CostEstimationController::class, 'destroy'])->name('cost-estimations.destroy');

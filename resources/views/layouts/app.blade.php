@@ -84,6 +84,10 @@
                         class="px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200 font-medium">
                         📝 Transactions
                     </a>
+                    <a href="{{ route('cost-estimations.index') }}"
+                        class="px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200 font-medium">
+                        🔮 Cost Estimation
+                    </a>
                     <a href="{{ route('accounts.index') }}"
                         class="px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200 font-medium">
                         💳 Accounts
