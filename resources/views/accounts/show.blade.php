@@ -17,6 +17,11 @@
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Current Balance</p>
                     <p class="text-4xl font-bold text-gray-900">৳{{ number_format($account->balance, 2) }}</p>
+                    @if(strtolower($account->name) === 'payoneer')
+                        <p class="text-sm text-gray-500 mt-2 font-medium">
+                            💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }} USD
+                        </p>
+                    @endif
                 </div>
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Total Transactions</p>

@@ -65,7 +65,8 @@
                         <div class="flex justify-between items-start mb-4">
                             <h3
                                 class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                {{ $account->name }}</h3>
+                                {{ $account->name }}
+                            </h3>
                             <span
                                 class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">{{ $account->transactions_count }}
                                 transactions</span>

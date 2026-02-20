@@ -81,7 +81,8 @@ class AccountController extends Controller
     public function show(Account $account)
     {
         $account->load('transactions');
-        return view('accounts.show', compact('account'));
+        $usdToBdtRate = Setting::getUsdToBdtRate();
+        return view('accounts.show', compact('account', 'usdToBdtRate'));
     }
 
     /**

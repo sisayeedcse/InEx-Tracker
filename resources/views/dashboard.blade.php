@@ -58,6 +58,11 @@
                             <p class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                                 ৳{{ number_format($account->balance, 2) }}
                             </p>
+                            @if(strtolower($account->name) === 'payoneer')
+                                <p class="text-sm text-gray-500 mt-2 font-medium">
+                                    💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }} USD
+                                </p>
+                            @endif
                             <div class="mt-4 pt-4 border-t border-gray-200">
                                 <p class="text-xs text-gray-500 uppercase tracking-wide">Available Balance</p>
                             </div>
