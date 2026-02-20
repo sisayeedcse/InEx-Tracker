@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -47,7 +48,8 @@ class AccountController extends Controller
     public function index()
     {
         $accounts = Account::withCount('transactions')->get();
-        return view('accounts.index', compact('accounts'));
+        $usdToBdtRate = Setting::getUsdToBdtRate();
+        return view('accounts.index', compact('accounts', 'usdToBdtRate'));
     }
 
     /**
@@ -112,5 +114,19 @@ class AccountController extends Controller
     {
         $account->delete();
         return redirect()->route('accounts.index')->with('success', 'Account deleted successfully!');
+    }
+
+    /**
+     * Update USD to BDT exchange rate.
+     */
+    public function updateExchangeRate(Request $request)
+    {
+        $request->validate([
+            'usd_to_bdt_rate' => 'required|numeric|min:0.01',
+        ]);
+
+        Setting::set('usd_to_bdt_rate', $request->usd_to_bdt_rate);
+
+        return redirect()->route('accounts.index')->with('success', 'Exchange rate updated successfully!');
     }
 }

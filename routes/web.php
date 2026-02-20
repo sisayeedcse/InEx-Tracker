@@ -14,9 +14,11 @@ Route::post('/onboarding', [AccountController::class, 'storeOnboarding'])->name(
 
 // Account routes
 Route::resource('accounts', AccountController::class);
+Route::post('/settings/exchange-rate', [AccountController::class, 'updateExchangeRate'])->name('settings.exchange-rate');
 
 // Chat/Transaction routes
 Route::post('/chat/parse', [ChatController::class, 'parse'])->name('chat.parse');
+Route::post('/chat/transfer', [ChatController::class, 'transfer'])->name('chat.transfer');
 Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
 
 // Transaction history
