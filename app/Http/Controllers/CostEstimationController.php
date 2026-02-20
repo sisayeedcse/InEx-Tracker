@@ -67,11 +67,17 @@ class CostEstimationController extends Controller
         $account = $this->detectAccount($input);
         
         if (!$account) {
-            // Use default account (first account) if no specific account mentioned
-            $account = Account::first();
+            // Use "Main" account as default if no specific account mentioned
+            $account = Account::where('name', 'Main')->first();
             
+            // If "Main" account doesn't exist, try to find any account with "main" in the name (case-insensitive)
             if (!$account) {
-                return back()->with('error', 'No account found. Please create an account first.');
+                $account = Account::whereRaw('LOWER(name) LIKE ?', ['%main%'])->first();
+            }
+            
+            // If still no account found, return error
+            if (!$account) {
+                return back()->with('error', 'No "Main" account found. Please create a Main account or specify an account in your message.');
             }
         }
 
