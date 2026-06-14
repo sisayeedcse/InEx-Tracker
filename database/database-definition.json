@@ -1,0 +1,221 @@
+{
+  "application": {
+    "name": "INEX",
+    "stack": "Laravel",
+    "purpose": "Account, transaction, cost estimation, and setting management"
+  },
+  "database": {
+    "schema_source": [
+      "database/migrations/0001_01_01_000000_create_sessions_table.php",
+      "database/migrations/0001_01_01_000002_create_jobs_table.php",
+      "database/migrations/2024_01_01_000001_create_accounts_table.php",
+      "database/migrations/2024_01_01_000002_create_transactions_table.php",
+      "database/migrations/2026_02_19_123301_create_cache_table.php",
+      "database/migrations/2026_02_20_000001_create_settings_table.php",
+      "database/migrations/2026_02_20_000002_create_cost_estimations_table.php"
+    ],
+    "seed_source": [
+      "database/seeders/DatabaseSeeder.php",
+      "database/seeders/MainAccountSeeder.php"
+    ],
+    "tables": [
+      {
+        "name": "accounts",
+        "kind": "application",
+        "model": "App\\Models\\Account",
+        "columns": [
+          { "name": "id", "type": "id", "nullable": false, "primary": true },
+          { "name": "name", "type": "string", "nullable": false },
+          { "name": "balance", "type": "decimal(12,2)", "nullable": false, "default": 0 },
+          { "name": "created_at", "type": "timestamp", "nullable": true },
+          { "name": "updated_at", "type": "timestamp", "nullable": true }
+        ],
+        "casts": {
+          "balance": "decimal:2"
+        },
+        "fillable": ["name", "balance"],
+        "relations": [
+          {
+            "name": "transactions",
+            "type": "hasMany",
+            "model": "App\\Models\\Transaction",
+            "foreign_key": "account_id"
+          }
+        ],
+        "business_logic": [
+          "addIncome(amount) increments balance",
+          "addExpense(amount) decrements balance",
+          "syncMainAccountBalance() updates the Main account to match the sum of all non-Main accounts"
+        ],
+        "seed_behavior": [
+          {
+            "type": "conditional",
+            "description": "Create a Main account if it does not already exist",
+            "values": {
+              "name": "Main",
+              "balance": "sum(accounts.balance where name != 'Main')"
+            }
+          }
+        ]
+      },
+      {
+        "name": "transactions",
+        "kind": "application",
+        "model": "App\\Models\\Transaction",
+        "columns": [
+          { "name": "id", "type": "id", "nullable": false, "primary": true },
+          { "name": "account_id", "type": "foreignId", "nullable": false, "references": "accounts.id", "on_delete": "cascade" },
+          { "name": "type", "type": "enum(income,expense)", "nullable": false },
+          { "name": "amount", "type": "decimal(12,2)", "nullable": false },
+          { "name": "note", "type": "text", "nullable": true },
+          { "name": "created_at", "type": "timestamp", "nullable": true },
+          { "name": "updated_at", "type": "timestamp", "nullable": true }
+        ],
+        "casts": {
+          "amount": "decimal:2"
+        },
+        "fillable": ["account_id", "type", "amount", "note"],
+        "relations": [
+          {
+            "name": "account",
+            "type": "belongsTo",
+            "model": "App\\Models\\Account",
+            "foreign_key": "account_id"
+          }
+        ],
+        "scopes": ["income", "expense"]
+      },
+      {
+        "name": "cost_estimations",
+        "kind": "application",
+        "model": "App\\Models\\CostEstimation",
+        "columns": [
+          { "name": "id", "type": "id", "nullable": false, "primary": true },
+          { "name": "account_id", "type": "foreignId", "nullable": false, "references": "accounts.id", "on_delete": "cascade" },
+          { "name": "amount", "type": "decimal(15,2)", "nullable": false },
+          { "name": "description", "type": "text", "nullable": false },
+          { "name": "created_at", "type": "timestamp", "nullable": true },
+          { "name": "updated_at", "type": "timestamp", "nullable": true }
+        ],
+        "casts": {
+          "amount": "decimal:2"
+        },
+        "fillable": ["account_id", "amount", "description"],
+        "relations": [
+          {
+            "name": "account",
+            "type": "belongsTo",
+            "model": "App\\Models\\Account",
+            "foreign_key": "account_id"
+          }
+        ]
+      },
+      {
+        "name": "settings",
+        "kind": "application",
+        "model": "App\\Models\\Setting",
+        "columns": [
+          { "name": "id", "type": "id", "nullable": false, "primary": true },
+          { "name": "key", "type": "string", "nullable": false, "unique": true },
+          { "name": "value", "type": "text", "nullable": true },
+          { "name": "created_at", "type": "timestamp", "nullable": true },
+          { "name": "updated_at", "type": "timestamp", "nullable": true }
+        ],
+        "fillable": ["key", "value"],
+        "helper_methods": [
+          "get(key, default)",
+          "set(key, value)",
+          "getUsdToBdtRate()"
+        ],
+        "seed_data": [
+          {
+            "key": "usd_to_bdt_rate",
+            "value": "120"
+          }
+        ]
+      },
+      {
+        "name": "sessions",
+        "kind": "infrastructure",
+        "columns": [
+          { "name": "id", "type": "string", "nullable": false, "primary": true },
+          { "name": "user_id", "type": "foreignId", "nullable": true, "indexed": true },
+          { "name": "ip_address", "type": "string(45)", "nullable": true },
+          { "name": "user_agent", "type": "text", "nullable": true },
+          { "name": "payload", "type": "longText", "nullable": false },
+          { "name": "last_activity", "type": "integer", "nullable": false, "indexed": true }
+        ]
+      },
+      {
+        "name": "jobs",
+        "kind": "infrastructure",
+        "columns": [
+          { "name": "id", "type": "id", "nullable": false, "primary": true },
+          { "name": "queue", "type": "string", "nullable": false, "indexed": true },
+          { "name": "payload", "type": "longText", "nullable": false },
+          { "name": "attempts", "type": "unsignedTinyInteger", "nullable": false },
+          { "name": "reserved_at", "type": "unsignedInteger", "nullable": true },
+          { "name": "available_at", "type": "unsignedInteger", "nullable": false },
+          { "name": "created_at", "type": "unsignedInteger", "nullable": false }
+        ]
+      },
+      {
+        "name": "job_batches",
+        "kind": "infrastructure",
+        "columns": [
+          { "name": "id", "type": "string", "nullable": false, "primary": true },
+          { "name": "name", "type": "string", "nullable": false },
+          { "name": "total_jobs", "type": "integer", "nullable": false },
+          { "name": "pending_jobs", "type": "integer", "nullable": false },
+          { "name": "failed_jobs", "type": "integer", "nullable": false },
+          { "name": "failed_job_ids", "type": "longText", "nullable": false },
+          { "name": "options", "type": "mediumText", "nullable": true },
+          { "name": "cancelled_at", "type": "integer", "nullable": true },
+          { "name": "created_at", "type": "integer", "nullable": false },
+          { "name": "finished_at", "type": "integer", "nullable": true }
+        ]
+      },
+      {
+        "name": "failed_jobs",
+        "kind": "infrastructure",
+        "columns": [
+          { "name": "id", "type": "id", "nullable": false, "primary": true },
+          { "name": "uuid", "type": "string", "nullable": false, "unique": true },
+          { "name": "connection", "type": "text", "nullable": false },
+          { "name": "queue", "type": "text", "nullable": false },
+          { "name": "payload", "type": "longText", "nullable": false },
+          { "name": "exception", "type": "longText", "nullable": false },
+          { "name": "failed_at", "type": "timestamp", "nullable": false, "default": "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        "name": "cache",
+        "kind": "infrastructure",
+        "columns": [
+          { "name": "key", "type": "string", "nullable": false, "primary": true },
+          { "name": "value", "type": "mediumText", "nullable": false },
+          { "name": "expiration", "type": "integer", "nullable": false, "indexed": true }
+        ]
+      },
+      {
+        "name": "cache_locks",
+        "kind": "infrastructure",
+        "columns": [
+          { "name": "key", "type": "string", "nullable": false, "primary": true },
+          { "name": "owner", "type": "string", "nullable": false },
+          { "name": "expiration", "type": "integer", "nullable": false, "indexed": true }
+        ]
+      }
+    ],
+    "seeders": [
+      {
+        "name": "DatabaseSeeder",
+        "calls": ["MainAccountSeeder"]
+      },
+      {
+        "name": "MainAccountSeeder",
+        "behavior": "Creates the Main account if it does not already exist and sets its balance to the sum of all non-Main accounts"
+      }
+    ]
+  }
+}
