@@ -1,0 +1,472 @@
+{
+    "accounts": [
+        {
+            "id": 1,
+            "name": "bKash",
+            "balance": 1234.74,
+            "created_at": "2026-02-19 12:37:09",
+            "updated_at": "2026-05-31 14:38:53"
+        },
+        {
+            "id": 2,
+            "name": "Upay Card",
+            "balance": 4879.84,
+            "created_at": "2026-02-19 12:37:09",
+            "updated_at": "2026-03-14 06:45:41"
+        },
+        {
+            "id": 3,
+            "name": "Payoneer",
+            "balance": 0,
+            "created_at": "2026-02-19 12:37:09",
+            "updated_at": "2026-03-14 06:49:09"
+        },
+        {
+            "id": 4,
+            "name": "OneBank",
+            "balance": 4311.01,
+            "created_at": "2026-02-19 12:37:40",
+            "updated_at": "2026-05-09 06:38:58"
+        },
+        {
+            "id": 5,
+            "name": "Personal MoneyBag",
+            "balance": 450,
+            "created_at": "2026-02-19 12:37:51",
+            "updated_at": "2026-05-31 14:38:43"
+        },
+        {
+            "id": 6,
+            "name": "Main",
+            "balance": 10875.59,
+            "created_at": "2026-02-20 06:00:34",
+            "updated_at": "2026-05-31 14:38:53"
+        }
+    ],
+    "cache": [],
+    "cache_locks": [],
+    "cost_estimations": [
+        {
+            "id": 10,
+            "account_id": 6,
+            "amount": 2400,
+            "description": "I will buy a steam code for 2400 taka",
+            "created_at": "2026-06-05 10:07:36",
+            "updated_at": "2026-06-05 10:07:36"
+        },
+        {
+            "id": 11,
+            "account_id": 6,
+            "amount": 2000,
+            "description": "I will buy a trimmer for 2000 taka",
+            "created_at": "2026-06-05 10:07:52",
+            "updated_at": "2026-06-05 10:07:52"
+        }
+    ],
+    "failed_jobs": [],
+    "job_batches": [],
+    "jobs": [],
+    "migrations": [
+        {
+            "id": 1,
+            "migration": "2024_01_01_000001_create_accounts_table",
+            "batch": 1
+        },
+        {
+            "id": 2,
+            "migration": "2024_01_01_000002_create_transactions_table",
+            "batch": 1
+        },
+        {
+            "id": 3,
+            "migration": "2026_02_19_123301_create_cache_table",
+            "batch": 1
+        },
+        {
+            "id": 4,
+            "migration": "0001_01_01_000000_create_sessions_table",
+            "batch": 2
+        },
+        {
+            "id": 5,
+            "migration": "0001_01_01_000002_create_jobs_table",
+            "batch": 3
+        },
+        {
+            "id": 6,
+            "migration": "2026_02_20_000001_create_settings_table",
+            "batch": 4
+        },
+        {
+            "id": 7,
+            "migration": "2026_02_20_000002_create_cost_estimations_table",
+            "batch": 5
+        }
+    ],
+    "sessions": [
+        {
+            "id": "WNrXh9G66O1El0sNI0Thin86TZcWQTWztQgc5plN",
+            "user_id": null,
+            "ip_address": "127.0.0.1",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+            "payload": "YTozOntzOjY6Il90b2tlbiI7czo0MDoiMlczSUNCamtMV3UxZ3M0MzZ2dXBqV2x4dThhaUtzTUp1MmdFTnI0WCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo5OiJkYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19",
+            "last_activity": 1776169642
+        },
+        {
+            "id": "HoIGHDD74ESBgRVgIJwpR3B0db5dnneCW2CazwWA",
+            "user_id": null,
+            "ip_address": "127.0.0.1",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+            "payload": "YTozOntzOjY6Il90b2tlbiI7czo0MDoiSkF3RGExbU1XczhVQ3RzRW9oWXBNejVOaEUxcDIyWjFMckh1S0xyMSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo5OiJkYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19",
+            "last_activity": 1778045226
+        },
+        {
+            "id": "8SD5Qv9qlOhIRs4uYDNBq4LJ5DJvhKa91uqNSqjn",
+            "user_id": null,
+            "ip_address": "127.0.0.1",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+            "payload": "YTozOntzOjY6Il90b2tlbiI7czo0MDoidzI2cFNaNUJzOEV5TW5jaXpMZGFmclA4YUd0cGM5ZHI0OE1OM05VVCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo5OiJkYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19",
+            "last_activity": 1778308829
+        },
+        {
+            "id": "HGYpjDmUEuB0BICyFgwGsfc9Ht5i4aFYcANZPDee",
+            "user_id": null,
+            "ip_address": "127.0.0.1",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+            "payload": "YTozOntzOjY6Il90b2tlbiI7czo0MDoiSHVoaWhLYWVlSUpTMGE2NlJSalh1WkRPdzV4bkZOWHRUdjVFSnpyZSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo5OiJkYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19",
+            "last_activity": 1779388503
+        },
+        {
+            "id": "LRuZbhrQiGIwhuTGuoTmFHIAGJr8MemU0CKBjz1k",
+            "user_id": null,
+            "ip_address": "127.0.0.1",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+            "payload": "YTozOntzOjY6Il90b2tlbiI7czo0MDoiU3FqR2tUMkJneFlXa1lWT1VzT21ETTJlMHhEQ2t0a1loSUd1MEdmbSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo5OiJkYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19",
+            "last_activity": 1780238334
+        },
+        {
+            "id": "5fclHLrioMm1rrfSkeu4aoURW0j20fUaBuJ6vdQ1",
+            "user_id": null,
+            "ip_address": "127.0.0.1",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+            "payload": "YTozOntzOjY6Il90b2tlbiI7czo0MDoib215NGFrQktQdHNmVU91R2NaOEFuU0FVMGVWRzZyZTAwYWNYckd2cCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo5OiJkYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19",
+            "last_activity": 1780551295
+        },
+        {
+            "id": "GgEh7zt10jSvklTfZMw6MG0qJFrz7yzYnrPWD4IV",
+            "user_id": null,
+            "ip_address": "127.0.0.1",
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+            "payload": "YTozOntzOjY6Il90b2tlbiI7czo0MDoia244TnBYU2VFZXc0R0JucDdaMXlqT3ZjRkZhVjk2akV3TnhLTTM1WSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo5OiJkYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19",
+            "last_activity": 1780654078
+        }
+    ],
+    "settings": [
+        {
+            "id": 1,
+            "key": "usd_to_bdt_rate",
+            "value": "121",
+            "created_at": "2026-02-20 05:22:17",
+            "updated_at": "2026-03-14 06:47:42"
+        }
+    ],
+    "transactions": [
+        {
+            "id": 3,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 200,
+            "note": "I bought a Pajama for 200 taka from Personal MoneyBag",
+            "created_at": "2026-02-28 13:00:21",
+            "updated_at": "2026-02-28 13:00:21"
+        },
+        {
+            "id": 4,
+            "account_id": 1,
+            "type": "expense",
+            "amount": 20,
+            "note": "I bought minitue pack for 20 taka from bkash",
+            "created_at": "2026-02-28 13:00:51",
+            "updated_at": "2026-02-28 13:00:51"
+        },
+        {
+            "id": 5,
+            "account_id": 3,
+            "type": "expense",
+            "amount": 2228.2,
+            "note": "I transferred 2228.20 from payoneer to upay (Transfer to Upay Card)",
+            "created_at": "2026-02-28 13:02:06",
+            "updated_at": "2026-02-28 13:02:06"
+        },
+        {
+            "id": 6,
+            "account_id": 2,
+            "type": "income",
+            "amount": 2228.2,
+            "note": "I transferred 2228.20 from payoneer to upay (Transfer from Payoneer)",
+            "created_at": "2026-02-28 13:02:06",
+            "updated_at": "2026-02-28 13:02:06"
+        },
+        {
+            "id": 7,
+            "account_id": 2,
+            "type": "expense",
+            "amount": 1690,
+            "note": "I bought a Domain for 1690 taka from Upay Card",
+            "created_at": "2026-03-04 06:06:09",
+            "updated_at": "2026-03-04 06:06:09"
+        },
+        {
+            "id": 9,
+            "account_id": 2,
+            "type": "expense",
+            "amount": 6656.88,
+            "note": "I bought a hosting for 6656.88 taka from Upay Card",
+            "created_at": "2026-03-04 06:44:34",
+            "updated_at": "2026-03-04 06:44:34"
+        },
+        {
+            "id": 10,
+            "account_id": 3,
+            "type": "income",
+            "amount": 7799.400000000001,
+            "note": "I got 70 dollar in payoneer",
+            "created_at": "2026-03-11 07:52:12",
+            "updated_at": "2026-03-11 07:52:12"
+        },
+        {
+            "id": 12,
+            "account_id": 4,
+            "type": "expense",
+            "amount": 2500,
+            "note": "I bought IEEE membership for 2500 taka from OneBank",
+            "created_at": "2026-03-11 13:07:32",
+            "updated_at": "2026-03-11 13:07:32"
+        },
+        {
+            "id": 14,
+            "account_id": 3,
+            "type": "expense",
+            "amount": 2244.52,
+            "note": "I transferred 2244.52 from payoneer to upay (Transfer from Payoneer) (Transfer to Upay Card)",
+            "created_at": "2026-03-14 06:45:41",
+            "updated_at": "2026-03-14 06:45:41"
+        },
+        {
+            "id": 15,
+            "account_id": 2,
+            "type": "income",
+            "amount": 2244.52,
+            "note": "I transferred 2244.52 from payoneer to upay (Transfer from Payoneer) (Transfer from Payoneer)",
+            "created_at": "2026-03-14 06:45:41",
+            "updated_at": "2026-03-14 06:45:41"
+        },
+        {
+            "id": 16,
+            "account_id": 3,
+            "type": "expense",
+            "amount": 5879.39,
+            "note": "I transferred 5879.39 from payoneer to onebank(Transfer from Payoneer) (Transfer to OneBank)",
+            "created_at": "2026-03-14 06:49:09",
+            "updated_at": "2026-03-14 06:49:09"
+        },
+        {
+            "id": 17,
+            "account_id": 4,
+            "type": "income",
+            "amount": 5879.39,
+            "note": "I transferred 5879.39 from payoneer to onebank(Transfer from Payoneer) (Transfer from Payoneer)",
+            "created_at": "2026-03-14 06:49:09",
+            "updated_at": "2026-03-14 06:49:09"
+        },
+        {
+            "id": 19,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 1000,
+            "note": "I bought tshirt and iceream for 1000 taka from Personal MoneyBag",
+            "created_at": "2026-03-23 14:38:27",
+            "updated_at": "2026-03-23 14:38:27"
+        },
+        {
+            "id": 20,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 300,
+            "note": "bought haircut and all for 300 taka from Personal MoneyBag",
+            "created_at": "2026-03-23 14:38:56",
+            "updated_at": "2026-03-23 14:38:56"
+        },
+        {
+            "id": 21,
+            "account_id": 1,
+            "type": "income",
+            "amount": 500,
+            "note": "Got 500 taka at bKash",
+            "created_at": "2026-03-23 14:40:13",
+            "updated_at": "2026-03-23 14:40:13"
+        },
+        {
+            "id": 23,
+            "account_id": 5,
+            "type": "income",
+            "amount": 2000,
+            "note": "Got  EID Salami 2000 taka at Personal MoneyBag",
+            "created_at": "2026-03-23 14:45:11",
+            "updated_at": "2026-03-23 14:45:11"
+        },
+        {
+            "id": 24,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 1000,
+            "note": "Personal Costs 1000 taka from personal moneybag",
+            "created_at": "2026-04-09 11:48:44",
+            "updated_at": "2026-04-09 11:48:44"
+        },
+        {
+            "id": 25,
+            "account_id": 4,
+            "type": "expense",
+            "amount": 1700,
+            "note": "I bought domain of 1700 taka from oneBank",
+            "created_at": "2026-04-14 12:20:10",
+            "updated_at": "2026-04-14 12:20:10"
+        },
+        {
+            "id": 26,
+            "account_id": 1,
+            "type": "expense",
+            "amount": 251,
+            "note": "I bought spotify premium of 251 taka from bkash",
+            "created_at": "2026-04-14 12:26:50",
+            "updated_at": "2026-04-14 12:26:50"
+        },
+        {
+            "id": 27,
+            "account_id": 1,
+            "type": "expense",
+            "amount": 45,
+            "note": "bought mobile recharge of 45 taka from bkash",
+            "created_at": "2026-04-14 12:27:13",
+            "updated_at": "2026-04-14 12:27:13"
+        },
+        {
+            "id": 28,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 500,
+            "note": "I bought something for 500 taka from personal moneybag",
+            "created_at": "2026-05-06 05:22:30",
+            "updated_at": "2026-05-06 05:22:30"
+        },
+        {
+            "id": 29,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 500,
+            "note": "I bought haircut, vehicle, wifi cost of 500 taka from personal moneybag",
+            "created_at": "2026-05-09 06:31:47",
+            "updated_at": "2026-05-09 06:31:47"
+        },
+        {
+            "id": 30,
+            "account_id": 4,
+            "type": "expense",
+            "amount": 800,
+            "note": "I bought Anamika MRG gift to mahim 800 taka from OneBank",
+            "created_at": "2026-05-09 06:32:40",
+            "updated_at": "2026-05-09 06:32:40"
+        },
+        {
+            "id": 31,
+            "account_id": 4,
+            "type": "expense",
+            "amount": 2000,
+            "note": "I transferred 2000 taka from OneBank to personal Moneybag (Transfer to Personal MoneyBag)",
+            "created_at": "2026-05-09 06:34:00",
+            "updated_at": "2026-05-09 06:34:00"
+        },
+        {
+            "id": 32,
+            "account_id": 5,
+            "type": "income",
+            "amount": 2000,
+            "note": "I transferred 2000 taka from OneBank to personal Moneybag (Transfer from OneBank)",
+            "created_at": "2026-05-09 06:34:00",
+            "updated_at": "2026-05-09 06:34:00"
+        },
+        {
+            "id": 33,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 500,
+            "note": "I bought gifted Mobile Founder to 500 taka from personal moneybag",
+            "created_at": "2026-05-09 06:34:45",
+            "updated_at": "2026-05-09 06:34:45"
+        },
+        {
+            "id": 34,
+            "account_id": 4,
+            "type": "expense",
+            "amount": 300,
+            "note": "I bought, restaurant bill to shahin for 300 taka from oneBank]",
+            "created_at": "2026-05-09 06:38:58",
+            "updated_at": "2026-05-09 06:38:58"
+        },
+        {
+            "id": 35,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 300,
+            "note": "i bought picnic cost 300 taka from personal moneybag",
+            "created_at": "2026-05-21 18:35:03",
+            "updated_at": "2026-05-21 18:35:03"
+        },
+        {
+            "id": 36,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 200,
+            "note": "I bought icecream and coke at 200 taka from personal moneybag",
+            "created_at": "2026-05-31 14:34:06",
+            "updated_at": "2026-05-31 14:34:06"
+        },
+        {
+            "id": 37,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 350,
+            "note": "I bought Brazil jersey at 350 taka from personal moneybag",
+            "created_at": "2026-05-31 14:34:35",
+            "updated_at": "2026-05-31 14:34:35"
+        },
+        {
+            "id": 38,
+            "account_id": 1,
+            "type": "income",
+            "amount": 610,
+            "note": "I got 610 taka to bkash from Jahed",
+            "created_at": "2026-05-31 14:35:10",
+            "updated_at": "2026-05-31 14:35:10"
+        },
+        {
+            "id": 39,
+            "account_id": 5,
+            "type": "expense",
+            "amount": 200,
+            "note": "I bought 200 taka from personal moneybag",
+            "created_at": "2026-05-31 14:38:43",
+            "updated_at": "2026-05-31 14:38:43"
+        },
+        {
+            "id": 40,
+            "account_id": 1,
+            "type": "income",
+            "amount": 200,
+            "note": "I got 200 taka to bkash",
+            "created_at": "2026-05-31 14:38:53",
+            "updated_at": "2026-05-31 14:38:53"
+        }
+    ]
+}
