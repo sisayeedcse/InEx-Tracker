@@ -1,89 +1,82 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Account - InEx Tracker')
+@section('title', 'Edit {{ $account->name }} — InEx Tracker')
+@section('page-title', 'Edit Account')
 
 @section('content')
-    <div class="max-w-2xl mx-auto">
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Edit Account</h1>
+<div style="max-width:600px; margin:0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-left">
+                <div class="card-icon warning">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="card-title">Edit — {{ $account->name }}</div>
+                    <div class="card-subtitle">Modify account details</div>
+                </div>
+            </div>
+            <a href="{{ route('accounts.index') }}" class="btn btn-ghost btn-sm">← Back</a>
         </div>
+        <div class="card-body">
+            @if($errors->any())
+                <div class="alert alert-danger" style="margin-bottom:20px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <div class="alert-text">
+                        <div class="alert-title">Please fix the errors below</div>
+                        <ul style="margin-top:6px; padding-left:16px;">
+                            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
 
-        <div class="bg-white rounded-lg shadow p-6">
             <form method="POST" action="{{ route('accounts.update', $account) }}">
                 @csrf
                 @method('PUT')
 
-                <div class="mb-4">
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Account Name</label>
-                    <input type="text" id="name" name="name" value="{{ old('name', $account->name) }}"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 @error('name') border-red-500 @enderror"
-                        required>
-                    @error('name')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                <div class="form-group">
+                    <label class="form-label" for="name">Account Name</label>
+                    <input type="text" name="name" id="name" class="form-control"
+                        value="{{ old('name', $account->name) }}"
+                        placeholder="Account name" required>
                 </div>
 
-                @if(strtolower($account->name) === 'payoneer')
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Current Balance</label>
-                        <div class="flex gap-3">
-                            <div class="flex-1">
-                                <label for="balance_usd" class="block text-xs text-gray-600 mb-1">💵 Amount in USD</label>
-                                <input type="number" id="balance_usd" name="balance" step="0.01" min="0"
-                                    value="{{ old('balance', number_format($account->balance / $usdToBdtRate, 2, '.', '')) }}"
-                                    class="w-full border-2 border-green-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 @error('balance') border-red-500 @enderror font-bold text-lg"
-                                    required oninput="updateBdtPreview()">
-                                <input type="hidden" name="currency" value="usd">
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-xs text-gray-600 mb-1">৳ Equivalent in BDT</label>
-                                <input type="text" id="bdt_preview"
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 text-gray-600 font-semibold text-lg"
-                                    value="{{ number_format($account->balance, 2) }}" readonly>
-                            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="balance">Balance</label>
+                        <div class="input-group">
+                            <span class="input-prefix">৳</span>
+                            <input type="number" step="0.01" min="0" name="balance" id="balance" class="form-control"
+                                value="{{ old('balance', $account->balance) }}"
+                                placeholder="0.00" required>
                         </div>
-                        <p class="text-sm text-gray-500 mt-2">
-                            Exchange Rate: 1 USD = {{ number_format($usdToBdtRate, 2) }} BDT
-                        </p>
-                        @error('balance')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
+                        <div class="form-hint">Editing balance directly will desync the Main account — prefer using transactions.</div>
                     </div>
-                @else
-                    <div class="mb-6">
-                        <label for="balance" class="block text-sm font-medium text-gray-700 mb-2">Current Balance (৳)</label>
-                        <input type="number" id="balance" name="balance" step="0.01" min="0"
-                            value="{{ old('balance', $account->balance) }}"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 @error('balance') border-red-500 @enderror"
-                            required>
-                        <input type="hidden" name="currency" value="bdt">
-                        @error('balance')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                @endif
 
-                <div class="flex gap-3">
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium">
-                        Update Account
+                    @if($account->isUsdAccount())
+                        <div class="form-group">
+                            <label class="form-label" for="currency">Currency</label>
+                            <select name="currency" id="currency" class="form-control">
+                                <option value="bdt">BDT (as stored)</option>
+                                <option value="usd">USD — convert at ৳{{ number_format($usdToBdtRate, 2) }}/USD</option>
+                            </select>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="flex gap-3 justify-end" style="margin-top:8px;">
+                    <a href="{{ route('accounts.index') }}" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Save Changes
                     </button>
-                    <a href="{{ route('accounts.index') }}"
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium">
-                        Cancel
-                    </a>
                 </div>
             </form>
         </div>
     </div>
-
-    @if(strtolower($account->name) === 'payoneer')
-        <script>
-            function updateBdtPreview() {
-                const usdAmount = parseFloat(document.getElementById('balance_usd').value) || 0;
-                const exchangeRate = {{ $usdToBdtRate }};
-                const bdtAmount = usdAmount * exchangeRate;
-                document.getElementById('bdt_preview').value = bdtAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            }
-        </script>
-    @endif
+</div>
 @endsection

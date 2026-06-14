@@ -10,22 +10,30 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Check if onboarding is complete
+        // Redirect to onboarding if no accounts yet
         if (Account::count() === 0) {
             return redirect()->route('onboarding');
         }
 
-        $accounts = Account::all();
-        // Exclude Main account from total to avoid duplication
-        $totalBalance = Account::where('name', '!=', 'Main')->sum('balance');
+        $accounts    = Account::all();
+        $totalBalance = Account::excludeMain()->sum('balance');
+
         $recentTransactions = Transaction::with('account')
             ->latest()
-            ->take(10)
+            ->take(8)
             ->get();
 
-        // Statistics
-        $totalIncome = Transaction::where('type', 'income')->sum('amount');
-        $totalExpense = Transaction::where('type', 'expense')->sum('amount');
+        // All-time totals
+        $totalIncome  = Transaction::income()->sum('amount');
+        $totalExpense = Transaction::expense()->sum('amount');
+
+        // This month
+        $monthIncome  = Transaction::income()->thisMonth()->sum('amount');
+        $monthExpense = Transaction::expense()->thisMonth()->sum('amount');
+
+        // 6-month chart data
+        $monthlyData = Transaction::monthlyTotals(6);
+
         $usdToBdtRate = Setting::getUsdToBdtRate();
 
         return view('dashboard', compact(
@@ -34,6 +42,9 @@ class DashboardController extends Controller
             'recentTransactions',
             'totalIncome',
             'totalExpense',
+            'monthIncome',
+            'monthExpense',
+            'monthlyData',
             'usdToBdtRate'
         ));
     }

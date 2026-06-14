@@ -1,138 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'InEx Tracker')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.4s ease-out',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(10px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+    <meta name="description" content="InEx Tracker — Personal finance tracker for accounts, income, expenses and cost estimations.">
 
-        .gradient-green {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .gradient-red {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-        }
-
-        .gradient-blue {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-    </style>
+    {{-- Design System CSS --}}
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @stack('styles')
 </head>
+<body>
 
-<body class="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
-    <nav class="glass-effect sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="{{ route('dashboard') }}"
-                        class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
-                        <span class="text-3xl">💰</span>
-                        <span>InEx Tracker</span>
-                    </a>
-                </div>
-                <div class="flex items-center space-x-1">
-                    <a href="{{ route('dashboard') }}"
-                        class="px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200 font-medium">
-                        📊 Dashboard
-                    </a>
-                    <a href="{{ route('transactions.index') }}"
-                        class="px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200 font-medium">
-                        📝 Transactions
-                    </a>
-                    <a href="{{ route('cost-estimations.index') }}"
-                        class="px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200 font-medium">
-                        🔮 Cost Estimation
-                    </a>
-                    <a href="{{ route('accounts.index') }}"
-                        class="px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200 font-medium">
-                        💳 Accounts
-                    </a>
-                </div>
+{{-- Flash data for JS toasts --}}
+@if(session('success'))
+    <div id="flash-success" data-message="{{ session('success') }}" style="display:none;"></div>
+@endif
+@if(session('error'))
+    <div id="flash-error" data-message="{{ session('error') }}" style="display:none;"></div>
+@endif
+
+{{-- Toast Container --}}
+<div id="toast-container"></div>
+
+{{-- Sidebar Overlay (mobile) --}}
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<div class="app-wrapper">
+
+    {{-- =========== SIDEBAR =========== --}}
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">💰</div>
+            <div class="sidebar-brand-text">
+                <div class="sidebar-brand-name">InEx Tracker</div>
+                <div class="sidebar-brand-sub">Finance Manager</div>
             </div>
         </div>
-    </nav>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        @if(session('success'))
-            <div
-                class="animate-slide-up bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-green-500 text-green-800 px-6 py-4 rounded-lg mb-6 shadow-md">
-                <div class="flex items-center">
-                    <span class="text-2xl mr-3">✓</span>
-                    <span class="font-medium">{{ session('success') }}</span>
-                </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Main</span>
+
+            <a href="{{ route('dashboard') }}"
+               class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Dashboard
+            </a>
+
+            <a href="{{ route('transactions.index') }}"
+               class="nav-link {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Transactions
+            </a>
+
+            <a href="{{ route('accounts.index') }}"
+               class="nav-link {{ request()->routeIs('accounts.*') ? 'active' : '' }}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                Accounts
+            </a>
+
+            <a href="{{ route('cost-estimations.index') }}"
+               class="nav-link {{ request()->routeIs('cost-estimations.*') ? 'active' : '' }}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Cost Estimation
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-text">InEx Tracker &copy; {{ date('Y') }}</div>
+            <div style="text-align:center; margin-top:6px;">
+                <span class="sidebar-footer-badge">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                    Laravel 12
+                </span>
             </div>
-        @endif
-
-        @if(session('error'))
-            <div
-                class="animate-slide-up bg-gradient-to-r from-red-50 to-pink-100 border-l-4 border-red-500 text-red-800 px-6 py-4 rounded-lg mb-6 shadow-md">
-                <div class="flex items-center">
-                    <span class="text-2xl mr-3">⚠</span>
-                    <span class="font-medium">{{ session('error') }}</span>
-                </div>
-            </div>
-        @endif
-
-        @yield('content')
-    </main>
-
-    <footer class="glass-effect border-t border-gray-200 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-            <p class="text-gray-600 font-medium">
-                InEx Tracker &copy; {{ date('Y') }}
-                <span class="mx-2">·</span>
-                <span class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Personal
-                    Finance Made Simple</span>
-            </p>
         </div>
-    </footer>
+    </aside>
 
-    @stack('scripts')
+    {{-- =========== MAIN CONTENT =========== --}}
+    <div class="main-content">
+
+        {{-- Topbar --}}
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+                <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
+            </div>
+            <div class="topbar-right">
+                @yield('topbar-actions')
+            </div>
+        </header>
+
+        {{-- Page Content --}}
+        <main class="page-content animate-fade-in">
+            @yield('content')
+        </main>
+
+    </div>{{-- end .main-content --}}
+</div>{{-- end .app-wrapper --}}
+
+{{-- Global JS --}}
+<script src="{{ asset('js/app.js') }}"></script>
+@stack('scripts')
+
 </body>
-
 </html>

@@ -1,360 +1,585 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - InEx Tracker')
+@section('title', 'Dashboard — InEx Tracker')
+@section('page-title', 'Dashboard')
+
+@section('topbar-actions')
+    <a href="{{ route('accounts.create') }}" class="btn btn-primary btn-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Account
+    </a>
+@endsection
 
 @section('content')
-    <div class="space-y-8 animate-fade-in">
-        <!-- Balance Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="gradient-blue text-white rounded-2xl shadow-xl p-8 card-hover relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 text-white opacity-10 text-9xl">💰</div>
-                <div class="relative z-10">
-                    <h3 class="text-sm font-semibold uppercase tracking-wide opacity-90">Total Balance</h3>
-                    <p class="text-4xl font-bold mt-3">৳{{ number_format($totalBalance, 2) }}</p>
-                    <div class="mt-4 pt-4 border-t border-white border-opacity-30">
-                        <p class="text-xs opacity-75">Your current net worth</p>
+<div class="space-y">
+
+    {{-- ===== KPI CARDS ===== --}}
+    <div class="grid-4">
+        <div class="stat-card">
+            <div class="stat-card-accent" style="background:var(--indigo);"></div>
+            <div class="stat-card-label">Total Balance</div>
+            <div class="stat-card-value indigo"
+                 data-count="{{ $totalBalance }}" data-prefix="৳" data-decimals="2">৳0.00</div>
+            <div class="stat-card-meta">All accounts combined</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-accent" style="background:var(--success);"></div>
+            <div class="stat-card-label">All-Time Income</div>
+            <div class="stat-card-value success"
+                 data-count="{{ $totalIncome }}" data-prefix="৳" data-decimals="2">৳0.00</div>
+            <div class="stat-card-meta">Total money in</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-accent" style="background:var(--danger);"></div>
+            <div class="stat-card-label">All-Time Expense</div>
+            <div class="stat-card-value danger"
+                 data-count="{{ $totalExpense }}" data-prefix="৳" data-decimals="2">৳0.00</div>
+            <div class="stat-card-meta">Total money out</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-accent" style="background:var(--warning);"></div>
+            <div class="stat-card-label">This Month Net</div>
+            @php $monthNet = $monthIncome - $monthExpense; @endphp
+            <div class="stat-card-value {{ $monthNet >= 0 ? 'success' : 'danger' }}"
+                 data-count="{{ abs($monthNet) }}" data-prefix="{{ $monthNet >= 0 ? '+' : '-' }}৳" data-decimals="2">৳0</div>
+            <div class="stat-card-meta">Income vs. Expense this month</div>
+        </div>
+    </div>
+
+    {{-- ===== CHARTS + ACCOUNTS ===== --}}
+    <div class="grid-2" style="grid-template-columns: 2fr 1fr;">
+
+        {{-- 6-Month Bar Chart --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-left">
+                    <div class="card-icon indigo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="card-title">6-Month Overview</div>
+                        <div class="card-subtitle">Income vs. Expense trends</div>
                     </div>
                 </div>
             </div>
-            <div class="gradient-green text-white rounded-2xl shadow-xl p-8 card-hover relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 text-white opacity-10 text-9xl">📈</div>
-                <div class="relative z-10">
-                    <h3 class="text-sm font-semibold uppercase tracking-wide opacity-90">Total Income</h3>
-                    <p class="text-4xl font-bold mt-3">৳{{ number_format($totalIncome, 2) }}</p>
-                    <div class="mt-4 pt-4 border-t border-white border-opacity-30">
-                        <p class="text-xs opacity-75">Money you've earned</p>
-                    </div>
-                </div>
-            </div>
-            <div class="gradient-red text-white rounded-2xl shadow-xl p-8 card-hover relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 text-white opacity-10 text-9xl">📉</div>
-                <div class="relative z-10">
-                    <h3 class="text-sm font-semibold uppercase tracking-wide opacity-90">Total Expense</h3>
-                    <p class="text-4xl font-bold mt-3">৳{{ number_format($totalExpense, 2) }}</p>
-                    <div class="mt-4 pt-4 border-t border-white border-opacity-30">
-                        <p class="text-xs opacity-75">Money you've spent</p>
-                    </div>
+            <div class="card-body">
+                <div class="chart-container" style="height:220px;">
+                    <canvas id="monthlyChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Account Balances -->
-        <div class="glass-effect rounded-2xl shadow-xl overflow-hidden">
-            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
-                    <span>💳</span>
-                    Account Balances
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">Track all your accounts in one place</p>
-            </div>
-            <div class="p-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    @foreach($accounts as $account)
-                        <div class="group bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-6 card-hover hover:border-purple-300 transition-all duration-300">
-                            <div class="flex items-center justify-between mb-3">
-                                <h4 class="font-bold text-gray-800 text-lg">{{ $account->name }}</h4>
-                                <span class="text-2xl group-hover:scale-110 transition-transform duration-300">💰</span>
-                            </div>
-                            @if(strtolower($account->name) === 'payoneer')
-                                <p class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                    💵 ${{ number_format($account->balance / $usdToBdtRate, 2) }}
-                                </p>
-                                <p class="text-sm text-gray-500 mt-2 font-medium">
-                                    ≈ ৳{{ number_format($account->balance, 2) }} BDT
-                                </p>
-                            @else
-                                <p class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                    ৳{{ number_format($account->balance, 2) }}
-                                </p>
-                            @endif
-                            <div class="mt-4 pt-4 border-t border-gray-200">
-                                <p class="text-xs text-gray-500 uppercase tracking-wide">Available Balance</p>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Input Section -->
-        <div class="glass-effect rounded-2xl shadow-xl overflow-hidden">
-            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
-                    <span>🤖</span>
-                    AI Transaction Parser
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">Type naturally, e.g., "I bought a shirt for 500 taka from bKash"</p>
-            </div>
-            <div class="p-8">
-                <form id="chatForm">
-                    @csrf
-                    <div class="flex gap-3">
-                        <div class="flex-1 relative group">
-                            <input type="text" id="chatInput" name="message"
-                                class="w-full border-2 border-gray-300 rounded-xl px-6 py-4 focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-400 transition-all duration-300 text-gray-700 placeholder-gray-400"
-                                placeholder="💬 Enter your transaction..." autocomplete="off">
-                            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-focus-within:opacity-20 transition-opacity duration-300 pointer-events-none"></div>
-                        </div>
-                        <button type="submit"
-                            class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                            <span class="flex items-center gap-2">
-                                <span>✨</span>
-                                Send
-                            </span>
-                        </button>
+        {{-- Donut Chart --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-left">
+                    <div class="card-icon success">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
                     </div>
-                </form>
-
-                <!-- Parse Result Display -->
-                <div id="parseResult" class="mt-6 hidden animate-slide-up">
-                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 shadow-lg">
-                        <h3 class="font-bold text-purple-900 mb-4 flex items-center gap-2">
-                            <span class="text-2xl">✓</span>
-                            <span>Detected Transaction</span>
-                        </h3>
-                        <div id="normalTransactionDetails" class="space-y-3 text-sm">
-                            <div class="flex items-center gap-3 bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 w-20">Type:</span> 
-                                <span id="resultType" class="capitalize px-3 py-1 bg-purple-100 text-purple-800 rounded-full font-medium"></span>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 w-20">Amount:</span> 
-                                <span class="font-bold text-2xl text-purple-600">৳<span id="resultAmount"></span></span>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 w-20">Account:</span> 
-                                <span id="resultAccount" class="font-medium text-gray-800"></span>
-                            </div>
-                            <div class="bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 block mb-2">Note:</span> 
-                                <span id="resultNote" class="text-gray-600 italic"></span>
-                            </div>
-                        </div>
-                        <div id="transferTransactionDetails" class="space-y-3 text-sm hidden">
-                            <div class="flex items-center gap-3 bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 w-20">Type:</span> 
-                                <span class="capitalize px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">Transfer</span>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 w-20">Amount:</span> 
-                                <span class="font-bold text-2xl text-blue-600">৳<span id="transferAmount"></span></span>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 w-20">From:</span> 
-                                <span id="transferFromAccount" class="font-medium text-gray-800"></span>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 w-20">To:</span> 
-                                <span id="transferToAccount" class="font-medium text-gray-800"></span>
-                            </div>
-                            <div class="bg-white bg-opacity-60 rounded-lg p-3">
-                                <span class="font-semibold text-gray-700 block mb-2">Note:</span> 
-                                <span id="transferNote" class="text-gray-600 italic"></span>
-                            </div>
-                        </div>
-                        <form id="confirmForm" method="POST" action="{{ route('transactions.store') }}" class="mt-6">
-                            @csrf
-                            <input type="hidden" name="account_id" id="confirmAccountId">
-                            <input type="hidden" name="type" id="confirmType">
-                            <input type="hidden" name="amount" id="confirmAmount">
-                            <input type="hidden" name="note" id="confirmNote">
-                            <!-- Transfer specific fields -->
-                            <input type="hidden" name="from_account_id" id="confirmFromAccountId">
-                            <input type="hidden" name="to_account_id" id="confirmToAccountId">
-                            <div class="flex gap-3">
-                                <button type="submit"
-                                    class="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                    ✓ Confirm & Save
-                                </button>
-                                <button type="button" id="cancelBtn"
-                                    class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold transition-all duration-300">
-                                    ✕ Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Error Display -->
-                <div id="parseError" class="mt-6 hidden animate-slide-up">
-                    <div class="bg-gradient-to-br from-red-50 to-pink-50 border-2 border-red-300 rounded-xl p-6 shadow-lg">
-                        <h4 class="font-bold text-red-800 mb-3 flex items-center gap-2">
-                            <span class="text-2xl">⚠</span>
-                            <span>Could not process</span>
-                        </h4>
-                        <ul id="errorList" class="list-disc list-inside text-sm text-red-700 space-y-1 bg-white bg-opacity-60 rounded-lg p-4"></ul>
+                    <div>
+                        <div class="card-title">This Month</div>
+                        <div class="card-subtitle">Income vs. Expense split</div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Recent Transactions -->
-        <div class="glass-effect rounded-2xl shadow-xl overflow-hidden">
-            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
-                    <span>📊</span>
-                    Recent Transactions
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">Your latest financial activities</p>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Account</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Amount</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Note</th>
-                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($recentTransactions as $transaction)
-                            <tr class="hover:bg-purple-50 transition-colors duration-200">
-                                <td class="px-6 py-4 text-sm text-gray-700 font-medium">
-                                    {{ $transaction->created_at->format('M d, Y H:i') }}
-                                </td>
-                                <td class="px-6 py-4 text-sm">
-                                    @if($transaction->type === 'income')
-                                        <span class="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-full shadow-sm border border-green-200">
-                                            📈 Income
-                                        </span>
-                                    @else
-                                        <span class="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-red-100 to-pink-100 text-red-800 rounded-full shadow-sm border border-red-200">
-                                            📉 Expense
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-800">{{ $transaction->account->name }}</td>
-                                <td class="px-6 py-4 text-sm font-bold {{ $transaction->type === 'income' ? 'text-green-600' : 'text-red-600' }}">
-                                    {{ $transaction->type === 'income' ? '+' : '-' }}৳{{ number_format($transaction->amount, 2) }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-600">{{ $transaction->note }}</td>
-                                <td class="px-6 py-4 text-center">
-                                    <form method="POST" action="{{ route('transactions.destroy', $transaction) }}" 
-                                        onsubmit="return confirm('Are you sure you want to delete this transaction? The account balance will be restored.');"
-                                        class="inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                            class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md"
-                                            title="Delete Transaction">
-                                            🗑️
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-12 text-center">
-                                    <div class="flex flex-col items-center justify-center">
-                                        <span class="text-6xl mb-4 opacity-20">📝</span>
-                                        <p class="text-gray-500 font-medium">No transactions yet. Start adding some!</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="card-body" style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                <div class="chart-container" style="height:160px; width:160px;">
+                    <canvas id="donutChart"></canvas>
+                </div>
+                <div style="display:flex; gap:20px; justify-content:center;">
+                    <div style="text-align:center;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Income</div>
+                        <div style="font-size:15px; font-weight:700; color:var(--success);">৳{{ number_format($monthIncome, 2) }}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Expense</div>
+                        <div style="font-size:15px; font-weight:700; color:var(--danger);">৳{{ number_format($monthExpense, 2) }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    @push('scripts')
-        <script>
-            const chatForm = document.getElementById('chatForm');
-            const chatInput = document.getElementById('chatInput');
-            const parseResult = document.getElementById('parseResult');
-            const parseError = document.getElementById('parseError');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const confirmForm = document.getElementById('confirmForm');
+    {{-- ===== ACCOUNT BALANCES ===== --}}
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-left">
+                <div class="card-icon indigo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="card-title">Account Balances</div>
+                    <div class="card-subtitle">Overview of all your accounts</div>
+                </div>
+            </div>
+            <a href="{{ route('accounts.index') }}" class="btn btn-ghost btn-sm">Manage</a>
+        </div>
+        <div class="card-body">
+            <div class="grid-3">
+                @foreach($accounts as $account)
+                    @php
+                        $isMain = $account->isMainAccount();
+                        $isUsd  = $account->isUsdAccount();
+                        $pct    = $totalBalance > 0 ? min(100, ($account->balance / $totalBalance) * 100) : 0;
+                    @endphp
+                    <div class="account-card" style="{{ $isMain ? 'border-color:var(--border-accent);' : '' }}">
+                        <div class="account-card-header">
+                            <div class="account-card-name">{{ $account->name }}</div>
+                            <span class="badge {{ $isMain ? 'badge-indigo' : 'badge-neutral' }}">
+                                {{ $isMain ? 'Aggregate' : ($isUsd ? 'USD' : 'BDT') }}
+                            </span>
+                        </div>
 
-            chatForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+                        @if($isUsd)
+                            <div class="account-card-balance">${{ number_format($account->balance / $usdToBdtRate, 2) }}</div>
+                            <div class="account-card-sub">≈ ৳{{ number_format($account->balance, 2) }} BDT</div>
+                        @else
+                            <div class="account-card-balance">৳{{ number_format($account->balance, 2) }}</div>
+                            <div class="account-card-sub">Available balance</div>
+                        @endif
 
-                const message = chatInput.value.trim();
-                if (!message) return;
+                        @if(!$isMain)
+                            <div class="progress" style="margin-top:8px;">
+                                <div class="progress-bar indigo" style="width:{{ $pct }}%;"></div>
+                            </div>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">{{ number_format($pct, 1) }}% of total</div>
+                        @endif
 
-                try {
-                    const response = await fetch('{{ route('chat.parse') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({ message })
-                    });
+                        <div class="account-card-actions">
+                            <a href="{{ route('accounts.show', $account) }}" class="btn btn-ghost btn-sm flex-1">View</a>
+                            <a href="{{ route('accounts.edit', $account) }}" class="btn btn-outline-indigo btn-sm flex-1">Edit</a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
 
-                    const data = await response.json();
+    {{-- ===== AI TRANSACTION PARSER ===== --}}
+    <div class="parser-panel">
+        <div class="card-header">
+            <div class="card-header-left">
+                <div class="card-icon indigo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="card-title">AI Transaction Parser</div>
+                    <div class="card-subtitle">Type naturally — e.g. "I bought a shirt for 500 taka from bKash"</div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form id="chatForm">
+                @csrf
+                <div class="parser-input-row">
+                    <input type="text" id="chatInput" name="message"
+                        class="parser-input"
+                        placeholder="Describe your transaction in plain text..."
+                        autocomplete="off">
+                    <button type="submit" id="parseBtn" class="btn btn-primary" style="padding:14px 24px;">
+                        <span id="parseBtnText" class="flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                            Parse
+                        </span>
+                        <span id="parseBtnLoading" class="flex items-center gap-2 hidden">
+                            <span class="spinner"></span> Parsing...
+                        </span>
+                    </button>
+                </div>
+                <div style="margin-top:8px; font-size:12px; color:var(--text-muted);">
+                    Tip: Use ↑/↓ arrow keys to recall previous messages. Press Escape to clear.
+                </div>
+            </form>
 
-                    if (data.success) {
-                        if (data.data.type === 'transfer') {
-                            // Show transfer result
-                            document.getElementById('transferAmount').textContent = data.data.amount;
-                            document.getElementById('transferFromAccount').textContent = data.data.from_account;
-                            document.getElementById('transferToAccount').textContent = data.data.to_account;
-                            document.getElementById('transferNote').textContent = data.data.note;
+            {{-- Parse Result --}}
+            <div id="parseResult" class="hidden">
+                <div class="parser-result">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                        <span class="badge badge-indigo">Detected Transaction</span>
+                        <span id="resultBadgeTransfer" class="badge badge-info hidden">Transfer</span>
+                    </div>
 
-                            // Set hidden form values
-                            document.getElementById('confirmFromAccountId').value = data.data.from_account_id;
-                            document.getElementById('confirmToAccountId').value = data.data.to_account_id;
-                            document.getElementById('confirmAmount').value = data.data.amount;
-                            document.getElementById('confirmNote').value = data.data.note;
+                    {{-- Normal Transaction --}}
+                    <div id="normalTransactionDetails">
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">Type</span>
+                            <span id="resultType" class="badge"></span>
+                        </div>
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">Amount</span>
+                            <span class="parser-amount-display">৳<span id="resultAmount"></span></span>
+                        </div>
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">Account</span>
+                            <span id="resultAccount" class="parser-result-val"></span>
+                        </div>
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">Note</span>
+                            <span id="resultNote" class="parser-result-val" style="color:var(--text-secondary); font-style:italic;"></span>
+                        </div>
+                    </div>
 
-                            // Update form action for transfer
-                            confirmForm.action = '{{ route('chat.transfer') }}';
+                    {{-- Transfer --}}
+                    <div id="transferTransactionDetails" class="hidden">
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">Amount</span>
+                            <span class="parser-amount-display">৳<span id="transferAmount"></span></span>
+                        </div>
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">From</span>
+                            <span id="transferFromAccount" class="parser-result-val"></span>
+                        </div>
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">To</span>
+                            <span id="transferToAccount" class="parser-result-val"></span>
+                        </div>
+                        <div class="parser-result-row">
+                            <span class="parser-result-key">Note</span>
+                            <span id="transferNote" class="parser-result-val" style="color:var(--text-secondary); font-style:italic;"></span>
+                        </div>
+                    </div>
 
-                            // Show transfer details, hide normal details
-                            document.getElementById('transferTransactionDetails').classList.remove('hidden');
-                            document.getElementById('normalTransactionDetails').classList.add('hidden');
-                        } else {
-                            // Show normal transaction result
-                            document.getElementById('resultType').textContent = data.data.type;
-                            document.getElementById('resultAmount').textContent = data.data.amount;
-                            document.getElementById('resultAccount').textContent = data.data.account;
-                            document.getElementById('resultNote').textContent = data.data.note;
+                    <form id="confirmForm" method="POST" action="{{ route('transactions.store') }}" style="margin-top:20px;">
+                        @csrf
+                        <input type="hidden" name="account_id" id="confirmAccountId">
+                        <input type="hidden" name="type"       id="confirmType">
+                        <input type="hidden" name="amount"     id="confirmAmount">
+                        <input type="hidden" name="note"       id="confirmNote">
+                        <input type="hidden" name="from_account_id" id="confirmFromAccountId">
+                        <input type="hidden" name="to_account_id"   id="confirmToAccountId">
 
-                            // Set hidden form values
-                            document.getElementById('confirmAccountId').value = data.data.account_id;
-                            document.getElementById('confirmType').value = data.data.type;
-                            document.getElementById('confirmAmount').value = data.data.amount;
-                            document.getElementById('confirmNote').value = data.data.note;
+                        <div class="flex gap-3">
+                            <button type="submit" class="btn btn-success flex-1">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                Confirm &amp; Save
+                            </button>
+                            <button type="button" id="cancelBtn" class="btn btn-ghost">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-                            // Update form action for normal transaction
-                            confirmForm.action = '{{ route('transactions.store') }}';
+            {{-- Error Display --}}
+            <div id="parseError" class="hidden" style="margin-top:16px;">
+                <div class="alert alert-danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <div class="alert-text">
+                        <div class="alert-title">Could not parse transaction</div>
+                        <ul id="errorList" style="margin-top:6px; padding-left:16px; font-size:13px;"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                            // Show normal details, hide transfer details
-                            document.getElementById('normalTransactionDetails').classList.remove('hidden');
-                            document.getElementById('transferTransactionDetails').classList.add('hidden');
-                        }
+    {{-- ===== RECENT TRANSACTIONS ===== --}}
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-left">
+                <div class="card-icon success">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="card-title">Recent Transactions</div>
+                    <div class="card-subtitle">Your latest 8 financial activities</div>
+                </div>
+            </div>
+            <a href="{{ route('transactions.index') }}" class="btn btn-ghost btn-sm">View All</a>
+        </div>
 
-                        parseResult.classList.remove('hidden');
-                        parseError.classList.add('hidden');
-                    } else {
-                        // Show errors
-                        const errorList = document.getElementById('errorList');
-                        errorList.innerHTML = '';
-                        data.errors.forEach(error => {
-                            const li = document.createElement('li');
-                            li.textContent = error;
-                            errorList.appendChild(li);
-                        });
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Account</th>
+                        <th>Amount</th>
+                        <th>Note</th>
+                        <th style="text-align:center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentTransactions as $transaction)
+                        <tr>
+                            <td class="td-muted">
+                                <div>{{ $transaction->created_at->format('M d, Y') }}</div>
+                                <div style="font-size:11px;">{{ $transaction->created_at->format('H:i') }}</div>
+                            </td>
+                            <td>
+                                @if($transaction->type === 'income')
+                                    <span class="badge badge-success">
+                                        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                                        Income
+                                    </span>
+                                @else
+                                    <span class="badge badge-danger">
+                                        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                                        Expense
+                                    </span>
+                                @endif
+                            </td>
+                            <td><span style="font-weight:600;">{{ $transaction->account->name }}</span></td>
+                            <td>
+                                <span style="font-weight:700; color:{{ $transaction->type === 'income' ? 'var(--success)' : 'var(--danger)' }};">
+                                    {{ $transaction->type === 'income' ? '+' : '−' }}৳{{ number_format($transaction->amount, 2) }}
+                                </span>
+                            </td>
+                            <td class="td-muted" style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                {{ $transaction->note ?? '—' }}
+                            </td>
+                            <td style="text-align:center;">
+                                <form method="POST"
+                                    action="{{ route('transactions.destroy', $transaction) }}"
+                                    class="inline-form"
+                                    data-confirm-delete
+                                    data-confirm-title="Delete this transaction?"
+                                    data-confirm-desc="The account balance of {{ $transaction->account->name }} will be restored by ৳{{ number_format($transaction->amount, 2) }}.">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-icon" title="Delete">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                                            <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                        </svg>
+                                    </div>
+                                    <div class="empty-state-title">No transactions yet</div>
+                                    <div class="empty-state-desc">Use the AI parser above to record your first transaction.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                        parseError.classList.remove('hidden');
-                        parseResult.classList.add('hidden');
-                    }
-                } catch (error) {
-                    alert('An error occurred while processing your request.');
-                    console.error(error);
-                }
-            });
-
-            cancelBtn.addEventListener('click', () => {
-                parseResult.classList.add('hidden');
-                parseError.classList.add('hidden');
-                chatInput.value = '';
-            });
-        </script>
-    @endpush
+</div>{{-- end .space-y --}}
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+/* ---- Monthly Chart ---- */
+const monthlyData = @json($monthlyData);
+const labels   = monthlyData.map(d => d.month);
+const incomes  = monthlyData.map(d => d.income);
+const expenses = monthlyData.map(d => d.expense);
+
+const chartDefaults = {
+    borderWidth: 0,
+    borderRadius: 6,
+    borderSkipped: false,
+};
+
+new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+        labels,
+        datasets: [
+            { label: 'Income',  data: incomes,  backgroundColor: 'rgba(16,185,129,0.75)', ...chartDefaults },
+            { label: 'Expense', data: expenses, backgroundColor: 'rgba(244,63,94,0.7)',   ...chartDefaults },
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#475569', font: { size: 12, family: 'Inter' } } },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ' ৳' + ctx.raw.toLocaleString('en-US', { minimumFractionDigits: 2 })
+                }
+            }
+        },
+        scales: {
+            x: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b', font: { size: 11 } } },
+            y: {
+                grid: { color: '#e2e8f0' },
+                ticks: { color: '#64748b', font: { size: 11 }, callback: v => '৳' + v.toLocaleString() }
+            }
+        }
+    }
+});
+
+/* ---- Donut Chart ---- */
+const mIncome  = {{ $monthIncome }};
+const mExpense = {{ $monthExpense }};
+
+new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Income', 'Expense'],
+        datasets: [{
+            data: [mIncome || 0.01, mExpense || 0.01],
+            backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(244,63,94,0.8)'],
+            borderColor:     ['#10b981', '#f43f5e'],
+            borderWidth: 1,
+            hoverOffset: 6,
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ' ৳' + ctx.raw.toLocaleString('en-US', { minimumFractionDigits: 2 }) } }
+        }
+    }
+});
+
+/* ---- AI Parser ---- */
+const chatForm    = document.getElementById('chatForm');
+const chatInput   = document.getElementById('chatInput');
+const parseResult = document.getElementById('parseResult');
+const parseError  = document.getElementById('parseError');
+const cancelBtn   = document.getElementById('cancelBtn');
+const confirmForm = document.getElementById('confirmForm');
+const parseBtn    = document.getElementById('parseBtn');
+const parseBtnText    = document.getElementById('parseBtnText');
+const parseBtnLoading = document.getElementById('parseBtnLoading');
+
+// Input history
+let history = JSON.parse(localStorage.getItem('inex_history') || '[]');
+let historyIdx = -1;
+
+chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (historyIdx < history.length - 1) {
+            historyIdx++;
+            chatInput.value = history[historyIdx];
+        }
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (historyIdx > 0) { historyIdx--; chatInput.value = history[historyIdx]; }
+        else { historyIdx = -1; chatInput.value = ''; }
+    } else if (e.key === 'Escape') {
+        chatInput.value = '';
+        historyIdx = -1;
+        parseResult.classList.add('hidden');
+        parseError.classList.add('hidden');
+    }
+});
+
+function setLoading(loading) {
+    parseBtn.disabled = loading;
+    parseBtnText.classList.toggle('hidden', loading);
+    parseBtnLoading.classList.toggle('hidden', !loading);
+}
+
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    setLoading(true);
+    parseResult.classList.add('hidden');
+    parseError.classList.add('hidden');
+
+    try {
+        const res  = await fetch('{{ route('chat.parse') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            // Save to history
+            history.unshift(message);
+            history = history.slice(0, 10);
+            localStorage.setItem('inex_history', JSON.stringify(history));
+            historyIdx = -1;
+
+            if (data.data.type === 'transfer') {
+                document.getElementById('transferAmount').textContent      = Number(data.data.amount).toLocaleString('en-US', { minimumFractionDigits: 2 });
+                document.getElementById('transferFromAccount').textContent = data.data.from_account;
+                document.getElementById('transferToAccount').textContent   = data.data.to_account;
+                document.getElementById('transferNote').textContent        = data.data.note;
+                document.getElementById('confirmFromAccountId').value      = data.data.from_account_id;
+                document.getElementById('confirmToAccountId').value        = data.data.to_account_id;
+                document.getElementById('confirmAmount').value             = data.data.amount;
+                document.getElementById('confirmNote').value               = data.data.note;
+                confirmForm.action = '{{ route('chat.transfer') }}';
+                document.getElementById('transferTransactionDetails').classList.remove('hidden');
+                document.getElementById('normalTransactionDetails').classList.add('hidden');
+                document.getElementById('resultBadgeTransfer').classList.remove('hidden');
+            } else {
+                const typeEl = document.getElementById('resultType');
+                typeEl.textContent = data.data.type;
+                typeEl.className   = 'badge ' + (data.data.type === 'income' ? 'badge-success' : 'badge-danger');
+                document.getElementById('resultAmount').textContent  = Number(data.data.amount).toLocaleString('en-US', { minimumFractionDigits: 2 });
+                document.getElementById('resultAccount').textContent = data.data.account;
+                document.getElementById('resultNote').textContent    = data.data.note;
+                document.getElementById('confirmAccountId').value    = data.data.account_id;
+                document.getElementById('confirmType').value         = data.data.type;
+                document.getElementById('confirmAmount').value       = data.data.amount;
+                document.getElementById('confirmNote').value         = data.data.note;
+                confirmForm.action = '{{ route('transactions.store') }}';
+                document.getElementById('normalTransactionDetails').classList.remove('hidden');
+                document.getElementById('transferTransactionDetails').classList.add('hidden');
+                document.getElementById('resultBadgeTransfer').classList.add('hidden');
+            }
+            parseResult.classList.remove('hidden');
+        } else {
+            const errorList = document.getElementById('errorList');
+            errorList.innerHTML = '';
+            data.errors.forEach(err => {
+                const li = document.createElement('li');
+                li.textContent = err;
+                errorList.appendChild(li);
+            });
+            parseError.classList.remove('hidden');
+        }
+    } catch (err) {
+        Toast.show('error', 'Network error. Please try again.', 'Request Failed');
+        console.error(err);
+    } finally {
+        setLoading(false);
+    }
+});
+
+cancelBtn.addEventListener('click', () => {
+    parseResult.classList.add('hidden');
+    parseError.classList.add('hidden');
+    chatInput.value = '';
+    historyIdx = -1;
+});
+</script>
+@endpush

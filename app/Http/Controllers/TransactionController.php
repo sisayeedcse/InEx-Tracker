@@ -5,30 +5,49 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TransactionController extends Controller
 {
     /**
-     * Display a listing of transactions.
+     * Display a listing of transactions with filtering.
      */
     public function index(Request $request)
     {
         $query = Transaction::with('account')->latest();
 
-        // Filter by account
         if ($request->filled('account_id')) {
             $query->where('account_id', $request->account_id);
         }
-
-        // Filter by type
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            $query->dateRange($request->start_date, $request->end_date);
+        }
+        if ($request->filled('keyword')) {
+            $query->search($request->keyword);
+        }
 
-        $transactions = $query->paginate(20);
-        $accounts = Account::all();
+        // CSV export
+        if ($request->boolean('export')) {
+            return $this->exportCsv($query->get());
+        }
 
-        return view('transactions.index', compact('transactions', 'accounts'));
+        $transactions = $query->paginate(20)->withQueryString();
+        $accounts     = Account::all();
+
+        // Summary for filtered set
+        $filtered   = $query->get();
+        $sumIncome  = $filtered->where('type', 'income')->sum('amount');
+        $sumExpense = $filtered->where('type', 'expense')->sum('amount');
+
+        return view('transactions.index', compact(
+            'transactions',
+            'accounts',
+            'sumIncome',
+            'sumExpense'
+        ));
     }
 
     /**
@@ -38,34 +57,30 @@ class TransactionController extends Controller
     {
         $request->validate([
             'account_id' => 'required|exists:accounts,id',
-            'type' => 'required|in:income,expense',
-            'amount' => 'required|numeric|min:0.01',
-            'note' => 'nullable|string',
+            'type'       => 'required|in:income,expense',
+            'amount'     => 'required|numeric|min:0.01',
+            'note'       => 'nullable|string|max:500',
         ]);
 
         $account = Account::findOrFail($request->account_id);
 
-        // Validate expense doesn't exceed balance (optional)
         if ($request->type === 'expense' && $request->amount > $account->balance) {
-            return back()->with('error', 'Insufficient balance!');
+            return back()->with('error', 'Insufficient balance in ' . $account->name . '!');
         }
 
-        // Create transaction
-        $transaction = Transaction::create([
+        Transaction::create([
             'account_id' => $request->account_id,
-            'type' => $request->type,
-            'amount' => $request->amount,
-            'note' => $request->note,
+            'type'       => $request->type,
+            'amount'     => $request->amount,
+            'note'       => $request->note,
         ]);
 
-        // Update account balance
         if ($request->type === 'income') {
             $account->addIncome($request->amount);
         } else {
             $account->addExpense($request->amount);
         }
 
-        // Sync Main account balance
         Account::syncMainAccountBalance();
 
         return redirect()->route('dashboard')->with('success', 'Transaction recorded successfully!');
@@ -78,21 +93,46 @@ class TransactionController extends Controller
     {
         $account = $transaction->account;
 
-        // Reverse the balance change
         if ($transaction->type === 'income') {
-            // If it was income, subtract it back
             $account->addExpense($transaction->amount);
         } else {
-            // If it was expense, add it back
             $account->addIncome($transaction->amount);
         }
 
-        // Delete the transaction
         $transaction->delete();
-
-        // Sync Main account balance
         Account::syncMainAccountBalance();
 
-        return back()->with('success', 'Transaction deleted and balance restored successfully!');
+        return back()->with('success', 'Transaction deleted and balance restored.');
+    }
+
+    /**
+     * Export transactions as CSV.
+     */
+    private function exportCsv($transactions)
+    {
+        $filename = 'transactions-' . now()->format('Y-m-d') . '.csv';
+        $headers  = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($transactions) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['ID', 'Date', 'Type', 'Account', 'Amount (BDT)', 'Note']);
+
+            foreach ($transactions as $t) {
+                fputcsv($handle, [
+                    $t->id,
+                    $t->created_at->format('Y-m-d H:i'),
+                    ucfirst($t->type),
+                    $t->account->name ?? 'N/A',
+                    number_format($t->amount, 2, '.', ''),
+                    $t->note ?? '',
+                ]);
+            }
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
